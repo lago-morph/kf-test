@@ -13,7 +13,6 @@ DEBIAN_FRONTEND=noninteractive sudo apt-get install -y \
    docker.io
 
 sudo usermod --append -G docker $USER
-newgrp docker
 
 ### Jinja2
 #
@@ -91,3 +90,9 @@ echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.bashrc
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 echo "base install completed successfully"
+
+echo "#####################################################"
+echo " make sure you pick up the new docker group with:"
+echo 
+echo "newgrp docker"
+echo
