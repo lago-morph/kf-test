@@ -2,6 +2,6 @@ export AWS_ACCESS_KEY_ID=
 export AWS_SECRET_ACCESS_KEY=
 export GITHUB_TOKEN=
 
-export AWS_DEFAULT_REGION=
-export DOMAIN=
-export GITHUB_ORG=
+export AWS_DEFAULT_REGION=us-east-1
+export DOMAIN=lago-morph.xyz
+export GITHUB_ORG=jm-niusgov
