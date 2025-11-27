@@ -60,14 +60,9 @@ rm -rf kubectl
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | sudo bash
 
 
-### Git configuration
-#
-echo '[core]\n    sshCommand = ssh -i ${SSH_KEY}\n[user]\n   name = ${GITNAME}\n   email = ${GITEMAIL}\n' > .gitconfig
-
-
 ### Starship
 #
-mkdir ~/.config
+mkdir ~/.config || echo ".config directory exists"
 cp starship.toml .config 
 curl -sS https://starship.rs/install.sh > /tmp/install.sh
 sudo sh /tmp/install.sh --yes
