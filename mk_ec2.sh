@@ -1,5 +1,6 @@
 #!/bin/bash
 #
+# This entire script was written by Claude Sonnet 4.5
 
 source variables
 
@@ -14,24 +15,53 @@ echo "================================"
 echo "Creating EC2 Instance"
 echo "================================"
 
-# Generate new key pair and save private key locally
-echo "Generating new SSH key pair..."
-aws ec2 create-key-pair \
+# Check if key pair already exists in AWS
+echo "Checking for existing SSH key pair..."
+EXISTING_KEY=$(aws ec2 describe-key-pairs \
   --region $REGION \
-  --key-name $KEY_NAME \
-  --query 'KeyMaterial' \
-  --output text > $PRIVATE_KEY_PATH
+  --key-names $KEY_NAME \
+  --query "KeyPairs[0].KeyName" \
+  --output text 2>/dev/null)
 
-# Check if key creation was successful
-if [ $? -eq 0 ]; then
-  echo "Key pair created: $KEY_NAME"
-  echo "Private key saved to: $PRIVATE_KEY_PATH"
-  # Set correct permissions on private key (required by SSH)
-  chmod 400 $PRIVATE_KEY_PATH
-  echo "Private key permissions set to 400"
+if [ "$EXISTING_KEY" = "$KEY_NAME" ]; then
+  echo "Key pair '$KEY_NAME' already exists in AWS"
+
+  # Check if private key file exists locally
+  if [ -f "$PRIVATE_KEY_PATH" ]; then
+    echo "Private key file found at: $PRIVATE_KEY_PATH"
+    echo "Using existing key pair"
+  else
+    echo "WARNING: Key pair exists in AWS but private key not found at: $PRIVATE_KEY_PATH"
+    echo "You will not be able to SSH into the instance without the private key."
+    read -p "Do you want to continue anyway? (y/n) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      echo "Exiting. Please either:"
+      echo "  1. Delete the key pair in AWS and re-run this script, or"
+      echo "  2. Locate your private key file and update PRIVATE_KEY_PATH variable"
+      exit 1
+    fi
+  fi
 else
-  echo "Error: Key pair may already exist. Delete it first or use a different name."
-  exit 1
+  echo "Key pair does not exist. Creating new key pair..."
+
+  # Generate new key pair and save private key locally
+  aws ec2 create-key-pair \
+    --region $REGION \
+    --key-name $KEY_NAME \
+    --query 'KeyMaterial' \
+    --output text > $PRIVATE_KEY_PATH
+
+  # Check if key creation was successful
+  if [ $? -eq 0 ]; then
+    echo "Key pair created: $KEY_NAME"
+    echo "Private key saved to: $PRIVATE_KEY_PATH"
+    chmod 400 $PRIVATE_KEY_PATH
+    echo "Private key permissions set to 400"
+  else
+    echo "Error: Failed to create key pair"
+    exit 1
+  fi
 fi
 
 # Find default VPC
@@ -94,6 +124,16 @@ INSTANCE_ID=$(aws ec2 run-instances \
   --subnet-id $SUBNET_ID \
   --security-group-ids $DEFAULT_SG_ID \
   --associate-public-ip-address \
+  --block-device-mappings '[
+    {
+      "DeviceName": "/dev/sda1",
+      "Ebs": {
+        "VolumeSize": 40,
+        "VolumeType": "gp3",
+        "DeleteOnTermination": true
+      }
+    }
+  ]' \
   --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=Ubuntu-T3-Medium}]' \
   --query "Instances[0].InstanceId" \
   --output text)

@@ -11,6 +11,8 @@ ssh-keyscan github.com >> ~/.ssh/known_hosts
 
 CRED_JSON=$(aws sts assume-role --role-arn "arn:aws:iam::${AWS_ACCOUNT}:role/KubernetesAdmin" --role-session-name "kubefirst-platform-creation" --duration-seconds 3600)
 
+# doesn't work on cloud sandbox? ## AWS_ACCESS_KEY_ID=$( echo ${CRED_JSON} | jq -r '.Credentials.AccessKeyId')
+# doesn't work on cloud sandbox? ## AWS_SECRET_ACCESS_KEY=$( echo ${CRED_JSON} | jq -r '.Credentials.SecretAccessKey')
 AWS_SESSION_TOKEN=$( echo ${CRED_JSON} | jq -r '.Credentials.SessionToken')
 
 kubefirst aws create \
