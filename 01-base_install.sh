@@ -13,6 +13,7 @@ DEBIAN_FRONTEND=noninteractive sudo apt-get install -y \
    docker.io
 
 sudo usermod --append -G docker $USER
+newgrp docker
 
 ### Jinja2
 #
@@ -63,17 +64,17 @@ curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | sudo 
 ### Starship
 #
 mkdir ~/.config || echo ".config directory exists"
-cp starship.toml .config 
+cp starship.toml ~/.config 
 curl -sS https://starship.rs/install.sh > /tmp/install.sh
 sudo sh /tmp/install.sh --yes
-echo 'eval "$(starship init bash)"' > .bashrc 
+echo 'eval "$(starship init bash)"' > ~/.bashrc 
 
 
 ### Other .bashrc setup
 #
-echo 'export PATH="$PATH:/home/ubuntu/.local/bin"' >> .bashrc && \
-echo '. /usr/share/bash-completion/bash_completion' >> .bashrc && \
-echo 'source <(kubectl completion bash)' >> .bashrc
+echo 'export PATH="$PATH:/home/ubuntu/.local/bin"' >> ~/.bashrc && \
+echo '. /usr/share/bash-completion/bash_completion' >> ~/.bashrc && \
+echo 'source <(kubectl completion bash)' >> ~/.bashrc
  
 
 ### ArgoCD CLI
@@ -85,8 +86,8 @@ rm argocd-linux-amd64
 ### Homebrew
 #
 NONINTERACTIVE=true /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-echo >> /home/ubuntu/.bashrc
-echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/ubuntu/.bashrc
+echo >> ~/.bashrc
+echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.bashrc
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 echo "base install completed successfully"
