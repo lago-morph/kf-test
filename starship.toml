@@ -6,7 +6,7 @@ $git_state\
 $git_metrics\
 $git_status
 $directory
-[EC2 INSTANCE](bold fg:yellow)$character"""
+[ec2 instance](bold fg:orange)$character"""
 
 [directory]
 truncate_to_repo = false
